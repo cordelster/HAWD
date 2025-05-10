@@ -1,0 +1,13 @@
+{
+  "config": {
+    "title": "WatchDuty Fire Alerts",
+    "zone_name": "Zone Name",
+    "zone_latitude": "Latitude",
+    "zone_longitude": "Longitude",
+    "zone_radius": "Radius (km)",
+    "zone_severity": "Minimum Severity",
+    "zone_orders": "Include Evacuation Orders",
+    "zone_warnings": "Include Evacuation Warnings",
+    "zone_advisories": "Include Evacuation Advisories"
+  }
+}
