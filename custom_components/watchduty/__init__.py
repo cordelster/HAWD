@@ -1,10 +1,10 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
-from .const import DOMAIN
+from .const import DOMAIN, PLATFORMS
 from .coordinator import WatchDutyDataUpdateCoordinator
 
-PLATFORMS = ["sensor"]
+#PLATFORMS = ["sensor"]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
@@ -13,7 +13,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = WatchDutyDataUpdateCoordinator(hass, entry.data)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-#    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

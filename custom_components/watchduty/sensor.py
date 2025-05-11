@@ -22,5 +22,9 @@ class WatchDutySensor(SensorEntity):
             "fires": self.coordinator.data
         }
 
+    self._attr_extra_state_attributes = {
+      "nearby_fires": filtered_fires
+    }
+
     async def async_update(self):
         await self.coordinator.async_request_refresh()
