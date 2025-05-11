@@ -1,19 +1,16 @@
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import location as loc_util
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, CONF_LATITUDE, CONF_LONGITUDE, CONF_RADIUS
 from .const import *
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    name = entry.data[CONF_NAME]
-    async_add_entities([WatchDutySensor(name, coordinator)], True)
+    zone_config = entry.data  # Get the zone config from entry.data
+    async_add_entities([WatchDutySensor(coordinator, zone_config)], True)  # Pass coordinator and zone_config
 
 
-
-
-
-class WatchDutySensor(Entity):
+class WatchDutySensor(SensorEntity):  # Inherit from SensorEntity
     def __init__(self, coordinator, zone_config):
         self.coordinator = coordinator
         self.zone = zone_config
@@ -76,6 +73,7 @@ class WatchDutySensor(Entity):
         self._attr_extra_state_attributes = {
             "nearby_fires": filtered
         }
+
     @property
     def native_value(self):
         return len(self.coordinator.data or [])
