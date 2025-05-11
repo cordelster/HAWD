@@ -1,0 +1,10 @@
+{
+  "domain": "watchduty",
+  "name": "WatchDuty Wildfire Alerts",
+  "version": "0.1.0",
+  "documentation": "https://github.com/cordelster/HAWD",
+  "requirements": [],
+  "codeowners": ["@cordelster"],
+  "iot_class": "cloud_polling",
+  "config_flow": true
+}

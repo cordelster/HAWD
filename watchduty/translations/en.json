@@ -1,0 +1,11 @@
+{
+  "title": "WatchDuty Wildfire Alerts",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure a WatchDuty Zone",
+        "description": "Set your location and filter criteria"
+      }
+    }
+  }
+}
