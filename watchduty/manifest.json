@@ -4,6 +4,13 @@
   "version": "0.1.0",
   "documentation": "https://github.com/cordelster/HAWD",
   "requirements": [],
+  "dependencies": [
+    "device_automation",
+    "frontend",
+    "http",
+    "lovelace",
+    "websocket_api"
+  ],
   "codeowners": ["@cordelster"],
   "iot_class": "cloud_polling",
   "config_flow": true
