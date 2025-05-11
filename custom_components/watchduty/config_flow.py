@@ -47,7 +47,7 @@ class WatchDutyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
 #            step_id="user",
-            step_id=STEP_ZONE
+            step_id=STEP_ZONE,
             data_schema=vol.Schema({
                 vol.Required("zone"): vol.In(zones),
                 vol.Required("radius", default=25): int,
