@@ -1,0 +1,154 @@
+blueprint:
+  name: Fire Alert - Close to Home
+  description: |
+    Triggers an action when a fire matching specific criteria is detected near your home.
+
+    **Inputs:**
+
+    * **WatchDuty Sensor:** The WatchDuty sensor entity providing fire data.
+    * **Home Location:** Configure your home's latitude and longitude.
+    * **Alert Criteria:** Define the conditions for triggering the alert.
+    * **Alert Actions (Optional):** Configure actions to take when an alert is triggered.
+
+  domain: automation
+  input:
+    watchduty_sensor:
+      name: WatchDuty Sensor
+      description: The WatchDuty sensor entity (e.g., sensor.watchduty_home).
+      selector:
+        entity:
+          domain: sensor
+
+    home_location_section:
+      name: "📍 Home Location"
+      icon: mdi:home-map-marker
+      collapsed: true
+      input:
+        home_latitude:
+          name: Home Latitude
+          description: The latitude of your home.
+          selector:
+            number:
+              mode: box
+#              step: 0.000001
+              default: 37.730001
+        home_longitude:
+          name: Home Longitude
+          description: The longitude of your home.
+          selector:
+            number:
+              mode: box
+#              step: 0.000001
+              default:-121.7600002
+
+    alert_criteria_section:
+      name: "⚠️ Alert Criteria"
+      icon: mdi:alert-outline
+      collapsed: true
+      input:
+        alert_radius:
+          name: Alert Radius (Miles)
+          description: The maximum distance (in miles) a fire can be from your home to trigger the alert.
+          default: 3
+          selector:
+            number:
+              mode: slider
+              min: 1
+              max: 50
+              step: 1
+              unit_of_measurement: miles
+        min_acreage:
+          name: Minimum Acreage
+          description: The minimum size (in acres) of the fire to trigger the alert.
+          default: 50
+          selector:
+            number:
+              mode: slider
+              min: 10
+              max: 1000
+              step: 10
+              unit_of_measurement: acres
+        max_containment:
+          name: Maximum Containment (%)
+          description: The maximum containment percentage (below which to trigger the alert). Set to 100 to ignore containment.
+          default: 50
+          selector:
+            number:
+              mode: slider
+              min: 0
+              max: 100
+              step: 1
+              unit_of_measurement: "%"
+
+    alert_actions_section:
+      name: "🔔 Alert Actions (Optional)"
+      icon: mdi:bell-outline
+      collapsed: true
+      input:
+        alert_switch:
+          name: Alert Switch
+          description: The switch entity to turn on when an alert is triggered.
+          default: ""
+          selector:
+            entity:
+              domain: switch
+              multiple: false
+        notification_title:
+          name: Notification Title
+          description: The title for the persistent notification.
+          default: "Fire Alert!"
+          selector:
+            text:
+              multiline: false
+        notification_message:
+          name: Notification Message
+          description: The message for the persistent notification.
+          default: "A fire matching your criteria is near your home."
+          selector:
+            text:
+              multiline: true
+
+trigger:
+  - platform: state
+    entity_id: !input watchduty_sensor
+
+condition:
+  - condition: template
+    value_template: >
+      {% set home_lat = float(inputs.home_latitude) %}
+      {% set home_lon = float(inputs.home_longitude) %}
+      {% set alert_radius_miles = float(inputs.alert_radius) %}
+      {% set min_acreage = float(inputs.min_acreage) %}
+      {% set max_containment = float(inputs.max_containment) %}
+      {% set fires = state_attr(inputs.watchduty_sensor, 'nearby_fires') %}
+      {% if fires %}
+        {% for fire in fires %}
+          {% set fire_distance_km = fire.distance_km if fire.distance_km is defined else 9999 %}
+          {% set fire_distance_miles = fire_distance_km * 0.621371 %}
+          {% set fire_acreage = fire.acreage | float if fire.acreage is defined else 0 %}
+          {% set fire_containment = fire.containment | float if fire.containment is defined else 100 %}
+          {% if fire_distance_miles <= alert_radius_miles and fire_acreage >= min_acreage and fire_containment < max_containment %}
+            {{ true }}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      {{ false }}  # Default to false if no matching fire is found
+
+action:
+  - if:
+      - condition: template
+        value_template: "{{ inputs.alert_switch }}"
+    then:
+      - service: switch.turn_on
+        target:
+          entity_id: !input alert_switch
+  - if:
+      - condition: template
+        value_template: "{{ inputs.notification_title }}"
+      - condition: template
+        value_template: "{{ inputs.notification_message }}"
+    then:
+      - service: persistent_notification.create
+        data:
+          title: !input notification_title
+          message: !input notification_message

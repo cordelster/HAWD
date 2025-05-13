@@ -18,7 +18,7 @@ class WatchDutyMapCard extends HTMLElement {
     this._mapProvider = config.map_provider || 'openstreetmap'; // Get map provider from config
     this.innerHTML = `
       <style>
-        #map {
+        map {
           height: 100%;
           width: 100%;
         }

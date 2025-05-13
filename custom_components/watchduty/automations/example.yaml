@@ -1,0 +1,26 @@
+automation:
+  - alias: "Fire Alert - Close to Home"
+    trigger:
+      - platform: state
+        entity_id: sensor.watchduty_your_zone_name # Replace with your actual sensor entity ID
+    condition:
+      - condition: template
+        value_template: >
+          {% set home_lat = your_home_latitude %} # Replace with your home's latitude
+          {% set home_lon = your_home_longitude %} # Replace with your home's longitude
+          {% set fires = state_attr('sensor.watchduty_your_zone_name', 'nearby_fires') %}
+          {% if fires %}
+            {% for fire in fires %}
+              {% set fire_distance_miles = fire.distance_km * 0.621371 if fire.distance_km is defined else 9999 %} # Convert km to miles
+              {% if fire_distance_miles <= 3 and fire.acreage >= 50 and (fire.containment is none or fire.containment < 50) %}
+                {{ true }}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+    action:
+      - service: switch.turn_on # Or switch.toggle
+        entity_id: switch.your_alert_switch # Replace with the entity ID of the switch you want to control
+      - service: notify.persistent_notification #Optional
+        data:
+          title: "Fire Alert!"
+          message: "A fire matching your criteria is near your home."

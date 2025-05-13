@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    name = entry.data[CONF_NAME]
+    zone_config = entry.data  # Get the entire zone configuration
     async_add_entities([WatchDutySensor(coordinator, zone_config)], True)  # Pass entry.data
 
 
